@@ -236,3 +236,48 @@ def get_like_count(topic_id):
     curr_like.execute(sql_like)
     like_count = curr_like.fetchone()["like_count"]
     return like_count
+
+
+def get_beauty_set():
+    saved_beauty_set = []
+    curr = connect_db().cursor()
+    order = request.form.get('orderby')
+    uid = request.headers.get('Authorization')
+    user = query_user(uid)
+    user_id = user["user_id"]
+
+    sql = """SELECT * FROM save_today_topic s, today_topic t 
+    WHERE s.topic_id = t.topic_id 
+    AND s.user_id = {} \n""".format(user_id)
+
+    if order == "a-z":
+        sql += "ORDER BY t.topic_name"
+    elif order == "view":
+        sql += "ORDER BY t.view_count DESC"
+    else:
+        sql += "ORDER BY s.save_id DESC"
+
+    curr.execute(sql)
+    for i in curr:
+        saved_beauty_set.append(i)
+
+    return jsonify(saved_beauty_set)
+
+
+def get_my_beauty_set():
+    my_beauty_sets = []
+    curr = connect_db().cursor()
+    uid = request.headers.get('Authorization')
+    user = query_user(uid)
+    user_id = user["user_id"]
+
+    sql = """SELECT * 
+            FROM today_topic t
+            JOIN user u ON t.user_id = u.user_id
+            WHERE u.user_id = {}""".format(user_id)
+
+    curr.execute(sql)
+    for i in curr:
+        my_beauty_sets.append(i)
+
+    return jsonify(my_beauty_sets)
