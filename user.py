@@ -32,8 +32,8 @@ def create_user():
     uid = request.form.get('uid')
 
     curr = connect_db().cursor()
-    sql = """INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `nickname`, `email`, `uid`) 
-        VALUES (NULL, '{}', '{}', '{}', '{}', '{}')""".format(first_name, last_name, nickname, email, uid)
+    sql = """INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `nickname`, `email`, `uid`, `profilepic`) 
+        VALUES (NULL, '{}', '{}', '{}', '{}', '{}', '')""".format(first_name, last_name, nickname, email, uid)
     status = curr.execute(sql)
 
     if status:
