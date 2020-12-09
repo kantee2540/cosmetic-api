@@ -153,6 +153,9 @@ def upload_profile():
                     "sql": sql
                 }
         else:
+            curr = connect_db().cursor()
+            sql = """UPDATE user SET profilepic = '{}' WHERE user_id = {}""".format(profile_url, user_id)
+            curr.execute(sql)
             json_format = {
                 "status": "changed image success",
                 "profile_url": profile_url,

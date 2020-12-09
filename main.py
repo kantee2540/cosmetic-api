@@ -2,7 +2,7 @@ import flask
 from product import product
 from beautyset import beauty_set, show_beauty_set,\
     save_beauty_set, delete_beauty_save_set, beauty_check_liked, set_like, set_unlike,\
-    get_beauty_set, get_my_beauty_set, add_beauty_set, delete_beauty_set
+    get_beauty_set, get_my_beauty_set, add_beauty_set, delete_beauty_set, edit_beauty_set
 from brand import brand
 from categories import categories
 from user import get_user_profile, create_user, update_user, delete_user, upload_profile
@@ -49,6 +49,7 @@ app.add_url_rule("/api/v1/beautyset/my_set/saved_set", view_func=get_beauty_set,
 app.add_url_rule("/api/v1/beautyset/my_set", view_func=get_my_beauty_set, methods=["POST"])
 app.add_url_rule("/api/v1/beautyset/add", view_func=add_beauty_set, methods=["POST"])
 app.add_url_rule("/api/v1/beautyset/delete", view_func=delete_beauty_set, methods=["POST"])
+app.add_url_rule("/api/v1/beautyset/edit", view_func=edit_beauty_set, methods=["POST"])
 
 app.add_url_rule("/api/v1/brand", view_func=brand)
 app.add_url_rule("/api/v1/categories", view_func=categories)
@@ -69,4 +70,4 @@ app.add_url_rule("/api/v1/cosmetic_desk/update_favorite", view_func=update_favor
 app.add_url_rule("/api/v1/brand", view_func=brand)
 app.add_url_rule("/api/v1/categories", view_func=categories)
 
-app.run()
+app.run(host="192.168.1.119")

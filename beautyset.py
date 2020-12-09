@@ -20,7 +20,7 @@ def beauty_set():
     if limit is not None:
         sql += "ORDER BY RAND() limit {}".format(limit)
     elif top_limit is not None:
-        sql += "ORDER BY t.view_count DESC limit {}".format(top_limit)
+        sql += "ORDER BY t.topic_id DESC limit {}".format(top_limit)
     elif topic_code is not None:
         sql += "WHERE topic_code = '{}'".format(topic_code)
 
@@ -55,6 +55,7 @@ def show_beauty_set(topic_id):
 
     if uid != "":
         is_saved = check_saved(uid, topic_id)
+        count_view(uid, topic_id)
     else:
         is_saved = False
 
@@ -71,6 +72,7 @@ def show_beauty_set(topic_id):
         "data": curr.fetchone(),
         "packages": package,
         "like_count": like_count,
+        "view_count": get_count_view(topic_id),
         "is_saved": is_saved
     }
 
@@ -327,9 +329,9 @@ def add_beauty_set():
         extension = topic_image.filename.rsplit('.', 1)[1].lower()
         filename = str(topic_id) + "." + extension
         topic_image.save(os.path.join("static/beauty_set_cover", filename))
-        profile_url = request.url_root + "beautyset_cover/" + filename
+        new_url = request.url_root + "beautyset_cover/" + filename
         curr_update = connect_db().cursor()
-        sql = """UPDATE today_topic SET topic_img = '{}' WHERE topic_id = {} """.format(profile_url, topic_id)
+        sql = """UPDATE today_topic SET topic_img = '{}' WHERE topic_id = {} """.format(new_url, topic_id)
         update_status = curr_update.execute(sql)
         if update_status:
             error = False
@@ -358,6 +360,81 @@ def add_beauty_set():
     else:
         json_format["status"] = "add beauty set failed"
         json_format["error"] = True
+
+    return jsonify(json_format)
+
+
+def edit_beauty_set():
+    topic_id = request.form.get('topic_id')
+    topic_name = request.form.get('topic_name')
+    topic_desc = request.form.get('topic_desc')
+    topic_image = request.files["topic_image"]
+    new_product_set = request.form.get('new_set')
+    delete_set = request.form.get('delete_set')
+    uid = request.headers.get('Authorization')
+    user = query_user(uid)
+
+    if user is not None:
+        curr = connect_db().cursor()
+        sql = """ UPDATE today_topic
+                SET topic_name = \"{}\",
+                topic_description = \"{}\"
+                WHERE topic_id = {} """.format(topic_name, topic_desc, topic_id)
+
+        curr.execute(sql)
+        if topic_image:
+            error = False
+            json_format = {}
+
+            file = "{}.jpg".format(topic_id)
+            topic_image.save(os.path.join("static/beauty_set_cover", file))
+            new_url = request.url_root + "beautyset_cover/" + file
+            curr_update = connect_db().cursor()
+            sql_update = """UPDATE today_topic SET topic_img = '{}' 
+                        WHERE topic_id = {} """.format(new_url, topic_id)
+            curr_update.execute(sql_update)
+
+            if new_product_set != "[]":
+                product_set_list = convert_to_list(new_product_set)
+                curr_add_product = connect_db().cursor()
+                for j in product_set_list:
+                    sql = """INSERT INTO packages(product_id, topic_id) VALUES ({}, {})""".format(j, topic_id)
+                    added = curr_add_product.execute(sql)
+                    if added:
+                        continue
+                    else:
+                        error = True
+                        break
+
+            if delete_set != "[]":
+                product_set_list = convert_to_list(delete_set)
+                curr_add_product = connect_db().cursor()
+                for j in product_set_list:
+                    sql = """DELETE FROM packages WHERE product_id = {} AND topic_id = {} """.format(j, topic_id)
+                    delete = curr_add_product.execute(sql)
+                    if delete:
+                        continue
+                    else:
+                        error = True
+                        break
+
+            if not error:
+                json_format["status"] = "update beauty set success"
+                json_format["error"] = error
+            else:
+                json_format["status"] = "update beauty set failed"
+                json_format["error"] = error
+        else:
+            json_format = {
+                "status": "update failed",
+                "error": True
+            }
+
+    else:
+        json_format = {
+            "status": "Authorization failed",
+            "error": True
+        }
 
     return jsonify(json_format)
 
@@ -394,3 +471,28 @@ def delete_beauty_set():
         }
 
     return jsonify(json_format)
+
+
+def count_view(uid, topic_id):
+    curr = connect_db().cursor()
+    user_id = query_user(uid)["user_id"]
+    sql_check = """
+    SELECT * FROM topic_view 
+    WHERE user_id = {} AND topic_id = {}
+    """.format(user_id, topic_id)
+    curr.execute(sql_check)
+    data = curr.fetchone()
+    if data is None:
+        sql = """INSERT INTO topic_view(user_id, topic_id) VALUES({}, {})""".format(user_id, topic_id)
+        curr.execute(sql)
+    else:
+        pass
+
+
+def get_count_view(topic_id):
+    curr = connect_db().cursor()
+    sql = """SELECT count(*) view_count FROM topic_view WHERE topic_id = {}""".format(topic_id)
+    curr.execute(sql)
+    count_topic_view = curr.fetchone()["view_count"]
+
+    return count_topic_view
