@@ -70,4 +70,5 @@ app.add_url_rule("/api/v1/cosmetic_desk/update_favorite", view_func=update_favor
 app.add_url_rule("/api/v1/brand", view_func=brand)
 app.add_url_rule("/api/v1/categories", view_func=categories)
 
-app.run(host="192.168.1.119")
+if __name__ == '__main__':
+    app.run()
