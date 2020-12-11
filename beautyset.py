@@ -53,7 +53,7 @@ def show_beauty_set(topic_id):
                     AND p.categories_id = c.categories_id
                     AND t.topic_id = {}""".format(topic_id)
 
-    if uid != "":
+    if uid is not None:
         is_saved = check_saved(uid, topic_id)
         count_view(uid, topic_id)
     else:
