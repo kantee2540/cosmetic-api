@@ -36,6 +36,11 @@ def base_beautyset_cover(filename):
     return flask.send_from_directory(UPLOAD_FOLDER + "/beauty_set_cover", filename)
 
 
+@app.route('/image/<path:filename>')
+def base_cosmetic_image(filename):
+    return flask.send_from_directory(UPLOAD_FOLDER + "/Images", filename)
+
+
 app.add_url_rule("/api/v1/product", view_func=product)
 
 app.add_url_rule("/api/v1/beautyset", view_func=beauty_set)
