@@ -133,7 +133,7 @@ def upload_profile():
     if file and allowed_file(file.filename):
         extension = file.filename.rsplit('.', 1)[1].lower()
         filename = str(user_id) + "." + extension
-        file.save(os.path.join("static/profile", filename))
+        file.save(os.path.join("./static/profile", filename))
         profile_url = request.url_root + "profile_img/" + filename
 
         if not check_is_uploaded(user_id):

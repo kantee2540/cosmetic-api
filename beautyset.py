@@ -328,7 +328,7 @@ def add_beauty_set():
 
         extension = topic_image.filename.rsplit('.', 1)[1].lower()
         filename = str(topic_id) + "." + extension
-        topic_image.save(os.path.join("static/beauty_set_cover", filename))
+        topic_image.save(os.path.join("./static/beauty_set_cover", filename))
         new_url = request.url_root + "beautyset_cover/" + filename
         curr_update = connect_db().cursor()
         sql = """UPDATE today_topic SET topic_img = '{}' WHERE topic_id = {} """.format(new_url, topic_id)
