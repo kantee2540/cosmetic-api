@@ -10,8 +10,7 @@ from cosmetic_desk import add_product_to_desk,\
     delete_product_from_desk, check_product_is_saved,\
     get_cosmetic_desk, get_cosmetic_desk_favorite,\
     update_favorite
-from brand import brand
-from categories import categories
+from flask_cors import CORS
 
 UPLOAD_FOLDER = './static'
 
@@ -19,6 +18,7 @@ app = flask.Flask(__name__, static_url_path="", static_folder="static")
 app.config["DEBUG"] = True
 app.config["JSON_SORT_KEYS"] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+CORS(app)
 
 
 @app.route('/', methods=["GET"])
