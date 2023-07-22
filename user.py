@@ -1,4 +1,4 @@
-from flask import jsonify, request, url_for
+from flask import jsonify, request, make_response, abort
 from connection import connect_db
 import os
 
@@ -19,21 +19,30 @@ def get_user_profile():
     if user is not None:
         json_format = user
     else:
-        json_format = {"error": "user not found"}
+        error_response = make_response(jsonify(error="User not found"), 400)
+        abort(error_response)
 
     return jsonify(json_format)
 
 
 def create_user():
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
+    first_name = f"'{request.form.get('first_name')}'" if request.form.get('first_name') is not None else "NULL"
+    last_name = f"'{request.form.get('last_name')}'" if request.form.get('last_name') is not None else "NULL"
     nickname = request.form.get('nickname')
     email = request.form.get('email')
     uid = request.form.get('uid')
 
     curr = connect_db().cursor()
+
+    # Check E-mail is unique
+    check_email_sql = f"SELECT COUNT(*) FROM user WHERE email = '{email}'"
+    count_email = curr.execute(check_email_sql)
+    if count_email > 0:
+        error_response = make_response(jsonify(error="This email is already registered."), 400)
+        abort(error_response)
+
     sql = """INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `nickname`, `email`, `uid`, `profilepic`) 
-        VALUES (NULL, '{}', '{}', '{}', '{}', '{}', '')""".format(first_name, last_name, nickname, email, uid)
+        VALUES (NULL, {}, {}, '{}', '{}', '{}', '')""".format(first_name, last_name, nickname, email, uid)
     status = curr.execute(sql)
 
     if status:
@@ -110,7 +119,7 @@ def delete_user():
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def check_is_uploaded(user_id):

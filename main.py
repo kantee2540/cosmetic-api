@@ -10,6 +10,8 @@ from cosmetic_desk import add_product_to_desk,\
     delete_product_from_desk, check_product_is_saved,\
     get_cosmetic_desk, get_cosmetic_desk_favorite,\
     update_favorite
+from home import home_display
+from share import share_product, share_beauty_set
 from flask_cors import CORS
 
 UPLOAD_FOLDER = './static'
@@ -20,8 +22,9 @@ app.config["JSON_SORT_KEYS"] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CORS(app)
 
+
 @app.route('/', methods=["GET"])
-def test():
+def root_url():
     return {
         "version": "1.0.0"
     }
@@ -42,6 +45,7 @@ def base_cosmetic_image(filename):
     return flask.send_from_directory(UPLOAD_FOLDER + "/Images", filename)
 
 
+app.add_url_rule("/home", view_func=home_display)
 app.add_url_rule("/product", view_func=product)
 
 app.add_url_rule("/beautyset", view_func=beauty_set)
@@ -76,5 +80,8 @@ app.add_url_rule("/cosmetic_desk/update_favorite", view_func=update_favorite, me
 app.add_url_rule("/brand", view_func=brand)
 app.add_url_rule("/categories", view_func=categories)
 
+app.add_url_rule("/share/product", view_func=share_product)
+app.add_url_rule("/share/beautyset", view_func=share_beauty_set)
+
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8080, debug=True)
