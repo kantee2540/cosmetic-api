@@ -1,4 +1,4 @@
-#!/Users/omp/PycharmProjects/cosmeticApi/venv/bin/python
+#!/Users/omp/PycharmProjects/cosmetic-api/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
